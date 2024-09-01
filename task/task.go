@@ -16,28 +16,20 @@ import (
 	"github.com/moby/moby/pkg/stdcopy"
 )
 
-type State int
-
-const (
-	Pending State = iota
-	Scheduled
-	Running
-	Completed
-	Failed
-)
-
 type Task struct {
-	ID           uuid.UUID
-	Name         string
-	State        State
-	Image        string
-	Cpu          float64
-	Memory       int64
-	Disk         int64
-	ExposedPorts nat.PortSet
-	PortBindings map[string]string
-	StartTime    time.Time
-	FinishTime   time.Time
+	ID            uuid.UUID
+	ContainerID   string
+	Name          string
+	State         State
+	Image         string
+	Cpu           float64
+	Memory        int64
+	Disk          int64
+	ExposedPorts  nat.PortSet
+	PortBindings  map[string]string
+	RestartPolicy string
+	StartTime     time.Time
+	FinishTime    time.Time
 }
 
 type TaskEvent struct {
@@ -66,9 +58,29 @@ type Config struct {
 	RestartPolicy string
 }
 
+func NewConfig(t *Task) *Config {
+	return &Config{
+		Name:          t.Name,
+		ExposedPorts:  t.ExposedPorts,
+		Image:         t.Image,
+		Cpu:           t.Cpu,
+		Memory:        t.Memory,
+		Disk:          t.Disk,
+		RestartPolicy: t.RestartPolicy,
+	}
+}
+
 type Docker struct {
 	Client *client.Client
 	Config Config
+}
+
+func NewDocker(c *Config) *Docker {
+	dc, _ := client.NewClientWithOpts(client.FromEnv)
+	return &Docker{
+		Client: dc,
+		Config: *c,
+	}
 }
 
 type DockerResult struct {
@@ -85,6 +97,10 @@ func (d *Docker) Run() DockerResult {
 		return DockerResult{Error: err}
 	}
 	io.Copy(os.Stdout, reader)
+	err = reader.Close()
+	if err != nil {
+		return DockerResult{Error: err}
+	}
 
 	rp := container.RestartPolicy{
 		Name: container.RestartPolicyMode(d.Config.RestartPolicy),
@@ -125,6 +141,10 @@ func (d *Docker) Run() DockerResult {
 		return DockerResult{Error: err}
 	}
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+	err = out.Close()
+	if err != nil {
+		return DockerResult{Error: err}
+	}
 
 	return DockerResult{ContainerId: resp.ID, Action: "start", Result: "success"}
 }

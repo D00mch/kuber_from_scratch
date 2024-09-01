@@ -3,6 +3,7 @@ package worker
 import (
 	"dumch/cube/task"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -12,19 +13,20 @@ import (
 
 func TestWoker(test *testing.T) {
 
-	db := make(map[uuid.UUID]*task.Task)
-	w := Worker{
-		Queue: *queue.New(),
-		Db:    db,
-	}
+	w1, w2 := newWorker(), newWorker()
+	t1, t2 := newTask(1), newTask(2)
 
-	t := task.Task{
-		ID:    uuid.New(),
-		Name:  "test-container-1",
-		State: task.Scheduled,
-		Image: "strm/helloworld-http",
-	}
+	wg := sync.WaitGroup{}
+	wg.Add(2)
 
+	go startTaskOnWorker(w1, t1, &wg)
+	go startTaskOnWorker(w2, t2, &wg)
+
+	wg.Wait()
+	fmt.Println("Finished")
+}
+
+func startTaskOnWorker(w Worker, t task.Task, wg *sync.WaitGroup) {
 	fmt.Println("starting task")
 	w.AddTask(t)
 	result := w.RunTask()
@@ -43,5 +45,23 @@ func TestWoker(test *testing.T) {
 	result2 := w.RunTask()
 	if result2.Error != nil {
 		panic(result2.Error)
+	}
+	wg.Done()
+}
+
+func newWorker() Worker {
+	db := make(map[uuid.UUID]*task.Task)
+	return Worker{
+		Queue: *queue.New(),
+		Db:    db,
+	}
+}
+
+func newTask(number int) task.Task {
+	return task.Task{
+		ID:    uuid.New(),
+		Name:  fmt.Sprintf("test-container-%d", number),
+		State: task.Scheduled,
+		Image: "strm/helloworld-http",
 	}
 }

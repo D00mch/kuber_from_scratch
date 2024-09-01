@@ -3,6 +3,7 @@ package worker
 import (
 	"dumch/cube/task"
 	"fmt"
+	"log"
 	"sync"
 	"testing"
 	"time"
@@ -24,6 +25,34 @@ func TestWoker(test *testing.T) {
 
 	wg.Wait()
 	fmt.Println("Finished")
+}
+
+func TestApi(test *testing.T) {
+	host := "localhost" // os.Getenv("CUBE_HOST")
+	port := 5555
+
+	fmt.Println("Starting Cube worker")
+	w := newWorker()
+
+	api := Api{Address: host, Port: port, Worker: &w}
+
+	go runTasks(&w)
+	api.Start()
+}
+
+func runTasks(w *Worker) {
+	for {
+		if w.Queue.Len() != 0 {
+			result := w.RunTask()
+			if result.Error != nil {
+				log.Printf("Error running task: %v\n", result.Error)
+			}
+		} else {
+			log.Println("No tasks to process currently.")
+		}
+		log.Println("Sleeping for 10 seconds.")
+		time.Sleep(10 * time.Second)
+	}
 }
 
 func startTaskOnWorker(w Worker, t task.Task, wg *sync.WaitGroup) {

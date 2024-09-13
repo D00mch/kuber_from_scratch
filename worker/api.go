@@ -28,6 +28,9 @@ func (api *Api) initRouter() {
 			r.Delete("/", api.StopTaskHandler)
 		})
 	})
+	api.Router.Route("/stats", func(r chi.Router) {
+		r.Get("/", api.GetStatsHandler)
+	})
 }
 
 func (api *Api) Start() {

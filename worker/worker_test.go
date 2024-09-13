@@ -37,6 +37,7 @@ func TestApi(test *testing.T) {
 	api := Api{Address: host, Port: port, Worker: &w}
 
 	go runTasks(&w)
+	go w.CollectStats()
 	api.Start()
 }
 

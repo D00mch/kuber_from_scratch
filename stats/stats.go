@@ -10,33 +10,6 @@ import (
 	"github.com/shirou/gopsutil/mem"
 )
 
-// # github.com/shirou/gopsutil/disk
-// iostat_darwin.c:28:2: warning: 'IOMasterPort' is deprecated: first deprecated in macOS 12.0
-//  [-Wdeprecated-declarations]
-// /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/IOKit.framewo
-// rk/Headers/IOKitLib.h:143:1: note: 'IOMasterPort' has been explicitly marked deprecated her
-// e
-// # github.com/shirou/gopsutil/host
-// smc_darwin.c:75:41: warning: 'kIOMasterPortDefault' is deprecated: first deprecated in macO
-// S 12.0 [-Wdeprecated-declarations]
-// /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/IOKit.framewo
-// rk/Headers/IOKitLib.h:133:19: note: 'kIOMasterPortDefault' has been explicitly marked depre
-// cated here
-// hostStat: {"hostname":"air","uptime":353164,"bootTime":1724874571,"procs":649,"os":"darwin"
-// ,"platform":"darwin","platformFamily":"Standalone Workstation","platformVersion":"14.4","ke
-// rnelVersion":"23.4.0","kernelArch":"arm64","virtualizationSystem":"","virtualizationRole":"
-// ","hostid":"a776b25d-7381-58cb-98b7-7c90f7a9c2f8"}
-// vmState: {"total":17179869184,"available":6084263936,"used":11095605248,"usedPercent":64.58
-// 492279052734,"free":882704384,"active":5428756480,"inactive":5201559552,"wired":2563555328,
-// "laundry":0,"buffers":0,"cached":0,"writeback":0,"dirty":0,"writebacktmp":0,"shared":0,"sla
-// b":0,"sreclaimable":0,"sunreclaim":0,"pagetables":0,"swapcached":0,"commitlimit":0,"committ
-// edas":0,"hightotal":0,"highfree":0,"lowtotal":0,"lowfree":0,"swaptotal":0,"swapfree":0,"map
-// ped":0,"vmalloctotal":0,"vmallocused":0,"vmallocchunk":0,"hugepagestotal":0,"hugepagesfree"
-// :0,"hugepagesize":0}
-// diskStat: {"path":"/","fstype":"apfs","total":245107195904,"free":76771721216,"used":168335
-// 474688,"usedPercent":68.67830789999783,"inodesTotal":750127592,"inodesUsed":403752,"inodesF
-// ree":749723840,"inodesUsedPercent":0.05382444324218379}
-
 type CpuStats struct {
 	Usage float64
 }

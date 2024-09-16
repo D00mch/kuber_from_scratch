@@ -11,11 +11,11 @@ const (
 )
 
 var stateTtansiitonMap = map[State][]State{
-	Pending:   []State{Scheduled},
-	Scheduled: []State{Running, Failed},
-	Running:   []State{Completed, Failed},
-	Completed: []State{},
-	Failed:    []State{},
+	Pending:   {Scheduled},
+	Scheduled: {Running, Failed},
+	Running:   {Completed, Failed},
+	Completed: {},
+	Failed:    {},
 }
 
 func Contains(states []State, state State) bool {

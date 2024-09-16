@@ -3,7 +3,6 @@ package worker
 import (
 	"dumch/cube/task"
 	"fmt"
-	"log"
 	"sync"
 	"testing"
 	"time"
@@ -29,37 +28,22 @@ func TestWoker(test *testing.T) {
 
 func TestApi(test *testing.T) {
 	host := "localhost" // os.Getenv("CUBE_HOST")
-	port := 5555
+	port := 5555        // os.Getenv("CUBE_PORT")
 
 	fmt.Println("Starting Cube worker")
 	w := newWorker()
 
 	api := Api{Address: host, Port: port, Worker: &w}
 
-	go runTasks(&w)
+	go w.RunTasks()
 	go w.CollectStats()
 	api.Start()
-}
-
-func runTasks(w *Worker) {
-	for {
-		if w.Queue.Len() != 0 {
-			result := w.RunTask()
-			if result.Error != nil {
-				log.Printf("Error running task: %v\n", result.Error)
-			}
-		} else {
-			log.Println("No tasks to process currently.")
-		}
-		log.Println("Sleeping for 10 seconds.")
-		time.Sleep(10 * time.Second)
-	}
 }
 
 func startTaskOnWorker(w Worker, t task.Task, wg *sync.WaitGroup) {
 	fmt.Println("starting task")
 	w.AddTask(t)
-	result := w.RunTask()
+	result := w.runTask()
 	if result.Error != nil {
 		panic(result.Error)
 	}
@@ -72,7 +56,7 @@ func startTaskOnWorker(w Worker, t task.Task, wg *sync.WaitGroup) {
 	fmt.Printf("stopping task %s\n", t.ID)
 	t.State = task.Completed
 	w.AddTask(t)
-	result2 := w.RunTask()
+	result2 := w.runTask()
 	if result2.Error != nil {
 		panic(result2.Error)
 	}
